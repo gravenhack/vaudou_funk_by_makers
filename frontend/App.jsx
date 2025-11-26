@@ -5,6 +5,7 @@ import { Sidebar } from './components/Sidebar';
 import { GeneratorPanel } from './components/GeneratorPanel';
 import { PlayerPanel } from './components/PlayerPanel';
 import { AuthModal } from './components/AuthModal';
+import { LandingPage } from './components/LandingPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { audioEngine } from './services/audioEngine';
 
@@ -13,6 +14,7 @@ const AppContent = () => {
   const { isAuthenticated, login } = useAuth();
 
   // Navigation & UI State
+  const [showLanding, setShowLanding] = useState(true);
   const [currentView, setCurrentView] = useState('home');
   const [showAuthModal, setShowAuthModal] = useState(!isAuthenticated);
 
@@ -162,6 +164,16 @@ const AppContent = () => {
     setShowAuthModal(true);
   };
 
+  const handleGetStarted = () => {
+    setShowLanding(false);
+    setShowAuthModal(true);
+  };
+
+  // Si on est sur la landing page, afficher seulement celle-ci
+  if (showLanding) {
+    return <LandingPage onGetStarted={handleGetStarted} />;
+  }
+
   return (
     <div className="flex flex-col h-screen bg-[#f3f4f6]" onClick={initAudio}>
       <AuthModal
@@ -171,15 +183,15 @@ const AppContent = () => {
       />
 
       <Header onOpenAuth={handleOpenAuth} />
-      
+
       <div className="flex flex-1 overflow-hidden">
         <Sidebar currentView={currentView} onChangeView={(v) => setCurrentView(v === 'home' ? 'home' : v)} />
-        
+
         <main className="flex-1 flex flex-col md:flex-row overflow-hidden p-6 gap-8">
-          
+
           {/* Left Panel - Generator */}
           <div className="w-full md:w-1/2 lg:w-5/12 h-full bg-white rounded-3xl p-6 shadow-sm border border-gray-100 overflow-hidden relative">
-            <GeneratorPanel 
+            <GeneratorPanel
               selectedStyle={selectedStyle}
               onStyleSelect={setSelectedStyle}
               prompt={prompt}
@@ -194,7 +206,7 @@ const AppContent = () => {
           {/* Right Panel - Content / Player */}
           <div className="hidden md:block w-full md:w-1/2 lg:w-7/12 h-full transition-all duration-300">
             <div className={`h-full rounded-3xl transition-all duration-300 ${currentView === 'player' ? 'bg-transparent' : 'bg-white p-8 shadow-sm border border-gray-100'}`}>
-               <PlayerPanel 
+               <PlayerPanel
                  viewMode={currentView === 'player' ? 'player' : 'list'}
                  onSwitchView={(v) => setCurrentView(v === 'player' ? 'player' : 'home')}
                  tracks={tracks}
@@ -205,7 +217,7 @@ const AppContent = () => {
                />
             </div>
           </div>
-          
+
         </main>
       </div>
     </div>

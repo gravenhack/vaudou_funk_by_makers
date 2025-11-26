@@ -1,13 +1,7 @@
 import React from 'react';
 import { Track } from '../types';
 
-  tracks: Track[];
-  currentStep: number;
-  isPlaying: boolean;
-  onToggleStep: (trackIndex: number, stepIndex: number) => void;
-}
-
-export const Sequencer= = ({
+export const Sequencer= ({
   tracks,
   currentStep,
   isPlaying,

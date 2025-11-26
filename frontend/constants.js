@@ -7,7 +7,7 @@ const IMG_ZINLI = "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?
 export const RHYTHM_STYLES = [
   {
     id: 'sato',
-    name: 'Sato',
+    name: 'Agbadja',
     description: 'Percussion traditionnelle vive',
     defaultBpm: 90,
     image: IMG_SATO
