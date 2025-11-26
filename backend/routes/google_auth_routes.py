@@ -95,7 +95,7 @@ async def google_callback(request: Request):
         refresh_token = auth_handler.create_refresh_token(token_data)
 
         # Redirection vers le frontend avec les tokens
-        frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+        frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
         redirect_url = f"{frontend_url}/auth/callback?access_token={access_token}&refresh_token={refresh_token}"
 
         return RedirectResponse(url=redirect_url)
