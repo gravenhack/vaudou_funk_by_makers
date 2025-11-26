@@ -1,6 +1,6 @@
 // Mock images matching the Vaudoun vibe
 const IMG_SATO = "https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?q=80&w=600&auto=format&fit=crop";
-const IMG_TCHINK = "https://images.unsplash.com/photo-1535581652167-3d6b985367b7?q=80&w=600&auto=format&fit=crop";
+const IMG_TCHINK = "https://www.memoireonline.com/12/21/12505/Sauvegarde-et-valorisation-du-patrimoine-immateriel-beninois-un-centre-de-promotion-des-rythmes-e15.png";
 const IMG_FUNK = "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=600&auto=format&fit=crop";
 const IMG_ZINLI = "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=600&auto=format&fit=crop";
 
