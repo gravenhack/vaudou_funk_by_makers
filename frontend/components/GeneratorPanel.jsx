@@ -1,20 +1,8 @@
 import React from 'react';
 import { RHYTHM_STYLES } from '../constants';
-import { RhythmStyle } from '../types';
 import { Image, Code, Mic, ArrowRight } from 'lucide-react';
 
-interface GeneratorPanelProps {
-  selectedStyle: RhythmStyle;
-  onStyleSelect: (style: RhythmStyle) => void;
-  prompt: string;
-  setPrompt: (s: string) => void;
-  onGenerate: () => void;
-  isGenerating: boolean;
-  instrumentMode: boolean;
-  setInstrumentMode: (v: boolean) => void;
-}
-
-export const GeneratorPanel: React.FC<GeneratorPanelProps> = ({
+export const GeneratorPanel = ({
   selectedStyle,
   onStyleSelect,
   prompt,

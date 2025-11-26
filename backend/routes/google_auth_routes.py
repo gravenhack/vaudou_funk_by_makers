@@ -8,15 +8,15 @@ from database import get_users_collection
 from oauth_google import oauth
 import os
 
-router = APIRouter(prefix="/auth/google", tags=["Google OAuth"])
+router = APIRouter(prefix="/oauth", tags=["Google OAuth"])
 
-@router.get("/login")
+@router.get("/google")
 async def google_login(request: Request):
     """Initier la connexion avec Google"""
     redirect_uri = os.getenv('GOOGLE_REDIRECT_URI', 'http://localhost:8000/auth/google/callback')
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
-@router.get("/callback")
+@router.get("/google/callback")
 async def google_callback(request: Request):
     """Callback après authentification Google"""
     try:

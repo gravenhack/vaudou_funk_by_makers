@@ -43,7 +43,6 @@ async def register(user: UserCreate):
     user_dict = {
         "email": user.email,
         "username": user.username,
-        "full_name": user.full_name,
         "password": auth_handler.get_password_hash(user.password),
         "created_at": datetime.utcnow(),
         "is_active": True

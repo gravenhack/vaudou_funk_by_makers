@@ -1,25 +1,57 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { INITIAL_PATTERN, RHYTHM_STYLES, PRESET_PATTERNS } from './constants';
-import { RhythmPattern, RhythmStyle } from './types';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { GeneratorPanel } from './components/GeneratorPanel';
 import { PlayerPanel } from './components/PlayerPanel';
 import { AuthModal } from './components/AuthModal';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { audioEngine } from './services/audioEngine';
-import { generateRhythmPattern } from './services/geminiService';
 
-const App: React.FC = () => {
+
+const AppContent = () => {
+  const { isAuthenticated, login } = useAuth();
+
   // Navigation & UI State
-  const [currentView, setCurrentView] = useState('home'); // 'home' | 'player'
-  const [showAuthModal, setShowAuthModal] = useState(true); // Show on load like mockup
-  
+  const [currentView, setCurrentView] = useState('home');
+  const [showAuthModal, setShowAuthModal] = useState(!isAuthenticated);
+
+  // Gérer le callback OAuth Google
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+
+    if (accessToken && refreshToken) {
+      // Sauvegarder les tokens
+      localStorage.setItem('access_token', accessToken);
+      localStorage.setItem('refresh_token', refreshToken);
+
+      // Récupérer les infos utilisateur
+      fetch('http://localhost:8000/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      })
+      .then(res => res.json())
+      .then(user => {
+        login(user);
+        setShowAuthModal(false);
+        // Nettoyer l'URL
+        window.history.replaceState({}, document.title, '/');
+      })
+      .catch(err => {
+        console.error('Erreur lors de la récupération de l\'utilisateur:', err);
+      });
+    }
+  }, [login]);
+
   // Data State
-  const [tracks, setTracks] = useState<RhythmPattern[]>(PRESET_PATTERNS);
-  const [currentTrack, setCurrentTrack] = useState<RhythmPattern>(PRESET_PATTERNS[0]);
+  const [tracks, setTracks] = useState(PRESET_PATTERNS);
+  const [currentTrack, setCurrentTrack] = useState(PRESET_PATTERNS[0]);
   
   // Generator State
-  const [selectedStyle, setSelectedStyle] = useState<RhythmStyle>(RHYTHM_STYLES[0]);
+  const [selectedStyle, setSelectedStyle] = useState(RHYTHM_STYLES[0]);
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [instrumentMode, setInstrumentMode] = useState(false);
@@ -29,9 +61,9 @@ const App: React.FC = () => {
   const [bpm, setBpm] = useState(100);
 
   // Audio Engine Refs
-  const nextNoteTimeRef = useRef<number>(0);
-  const currentStepRef = useRef<number>(0);
-  const timerIDRef = useRef<number | null>(null);
+  const nextNoteTimeRef = useRef(0);
+  const currentStepRef = useRef(0);
+  const timerIDRef = useRef(null);
   const lookahead = 25.0;
   const scheduleAheadTime = 0.1;
 
@@ -47,7 +79,7 @@ const App: React.FC = () => {
     currentStepRef.current = (currentStepRef.current + 1) % 16;
   }, [bpm]);
 
-  const scheduleNote = useCallback((stepNumber: number, time: number) => {
+  const scheduleNote = useCallback((stepNumber, time) => {
     currentTrack.tracks.forEach(track => {
       if (track.steps[stepNumber]) {
         audioEngine.playInstrument(track.instrument, time);
@@ -72,7 +104,7 @@ const App: React.FC = () => {
       // If just starting, sync time
       if (timerIDRef.current === null) {
          currentStepRef.current = 0;
-         nextNoteTimeRef.current = audioEngine['ctx']?.currentTime! + 0.05;
+         nextNoteTimeRef.current = audioEngine['ctx']?.currentTime + 0.05;
       }
       scheduler();
     } else {
@@ -100,22 +132,8 @@ const App: React.FC = () => {
     setIsGenerating(true);
     try {
       // 50/40 are default complexity/temp values for now
-      const newTracks = await generateRhythmPattern(selectedStyle.name, prompt, 60, 40);
-      
-      const newPattern: RhythmPattern = {
-        id: `gen-${Date.now()}`,
-        name: prompt ? `Vibe: ${prompt}` : `${selectedStyle.name} AI`,
-        description: `Généré avec Gemini - ${selectedStyle.name}`,
-        bpm: selectedStyle.defaultBpm,
-        tracks: newTracks,
-        duration: "2:15",
-        cover: selectedStyle.image
-      };
-
-      setTracks(prev => [newPattern, ...prev]);
-      setCurrentTrack(newPattern);
-      setCurrentView('player'); // Switch to player to hear result
-      setIsPlaying(true);
+      // TODO: Replace with your own rhythm generation logic or API call
+      alert('La génération IA a été désactivée. Ajoutez votre propre logique ici.');
     } catch (err) {
       console.error(err);
       alert("Erreur de génération. Vérifiez la clé API.");
@@ -124,7 +142,7 @@ const App: React.FC = () => {
     }
   };
 
-  const handlePlayTrack = (track: RhythmPattern) => {
+  const handlePlayTrack = (track) => {
     if (currentTrack.id === track.id) {
       setIsPlaying(!isPlaying);
       if (currentView === 'home') setCurrentView('player');
@@ -135,11 +153,24 @@ const App: React.FC = () => {
     }
   };
 
+  const handleAuthSuccess = (user) => {
+    login(user);
+    setShowAuthModal(false);
+  };
+
+  const handleOpenAuth = () => {
+    setShowAuthModal(true);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[#f3f4f6]" onClick={initAudio}>
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
-      
-      <Header />
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onAuthSuccess={handleAuthSuccess}
+      />
+
+      <Header onOpenAuth={handleOpenAuth} />
       
       <div className="flex flex-1 overflow-hidden">
         <Sidebar currentView={currentView} onChangeView={(v) => setCurrentView(v === 'home' ? 'home' : v)} />
@@ -178,6 +209,14 @@ const App: React.FC = () => {
         </main>
       </div>
     </div>
+  );
+};
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
 

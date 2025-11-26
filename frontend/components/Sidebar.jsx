@@ -1,12 +1,14 @@
 import React from 'react';
 import { Mic2, Compass, Headphones, Heart, BookOpen, LogOut, Settings } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
-interface SidebarProps {
-  currentView: string;
-  onChangeView: (view: string) => void;
-}
+export const Sidebar = ({ currentView, onChangeView }) => {
+  const { logout } = useAuth();
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView }) => {
+  const handleLogout = () => {
+    logout();
+    window.location.reload();
+  };
   const menuItems = [
     { id: 'generate', icon: Mic2, activeColor: 'text-white bg-green-500' },
     { id: 'explore', icon: Compass, activeColor: 'text-green-600' },
@@ -37,7 +39,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView }) =
 
       <div className="mt-auto flex flex-col gap-6 items-center w-full pb-4">
         <button className="text-gray-400 hover:text-gray-600 p-2"><Settings size={22} /></button>
-        <button className="text-gray-400 hover:text-gray-600 p-2"><LogOut size={22} /></button>
+        <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 p-2 transition-colors">
+          <LogOut size={22} />
+        </button>
       </div>
     </aside>
   );

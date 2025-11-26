@@ -16,6 +16,9 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Middleware de session pour OAuth (DOIT être ajouté AVANT CORS)
+app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY", "your-secret-key-min-32-characters-long!"))
+
 # Configuration CORS pour Vue.js
 app.add_middleware(
     CORSMiddleware,
@@ -52,9 +55,6 @@ async def root():
 async def health_check():
     """Vérification de l'état de l'API"""
     return {"status": "healthy"}
-
-# Middleware de session pour OAuth
-app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY"))
 
 # Inclure les routes d'authentification
 app.include_router(auth_router)

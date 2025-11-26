@@ -1,7 +1,10 @@
 import React from 'react';
 import { Search, Bell, Globe, User } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
-export const Header: React.FC = () => {
+export const Header = ({ onOpenAuth }) => {
+  const { isAuthenticated } = useAuth();
+
   return (
     <header className="h-16 bg-[#4a1d96] flex items-center justify-between px-4 md:px-6 shadow-md z-20 sticky top-0">
       <div className="flex items-center gap-4 w-full md:w-auto">
@@ -28,14 +31,22 @@ export const Header: React.FC = () => {
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="hidden md:flex gap-2">
-           <button className="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-4 py-1.5 rounded-full transition-colors shadow-lg shadow-green-900/20">
-             Se Connecter
-           </button>
-           <button className="bg-white hover:bg-gray-100 text-purple-900 text-xs font-semibold px-4 py-1.5 rounded-full transition-colors">
-             S'inscrire
-           </button>
-        </div>
+        {!isAuthenticated && (
+          <div className="hidden md:flex gap-2">
+             <button
+               onClick={onOpenAuth}
+               className="bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-4 py-1.5 rounded-full transition-colors shadow-lg shadow-green-900/20"
+             >
+               Se Connecter
+             </button>
+             <button
+               onClick={onOpenAuth}
+               className="bg-white hover:bg-gray-100 text-purple-900 text-xs font-semibold px-4 py-1.5 rounded-full transition-colors"
+             >
+               S'inscrire
+             </button>
+          </div>
+        )}
         <div className="flex gap-2 text-white/80">
           <button className="p-2 hover:bg-white/10 rounded-full transition-colors"><Bell size={18} /></button>
           <button className="p-2 hover:bg-white/10 rounded-full transition-colors"><Globe size={18} /></button>

@@ -1,22 +1,7 @@
 import React from 'react';
 import { Play, Square, RefreshCw, Download, Wand2 } from 'lucide-react';
 
-interface ControlPanelProps {
-  isPlaying: boolean;
-  bpm: number;
-  setBpm: (bpm: number) => void;
-  onPlayPause: () => void;
-  onGenerate: () => void;
-  isGenerating: boolean;
-  complexity: number;
-  setComplexity: (val: number) => void;
-  temperature: number;
-  setTemperature: (val: number) => void;
-  onClear: () => void;
-  onExportMidi: () => void;
-}
-
-export const ControlPanel: React.FC<ControlPanelProps> = ({
+export const ControlPanel= ({
   isPlaying,
   bpm,
   setBpm,

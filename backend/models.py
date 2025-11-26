@@ -7,7 +7,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     username: str = Field(..., min_length=3, max_length=50)
     password: str = Field(..., min_length=6)
-    full_name: Optional[str] = None
+    # full_name: Optional[str] = None
 
 class UserLogin(BaseModel):
     """Modèle pour la connexion"""

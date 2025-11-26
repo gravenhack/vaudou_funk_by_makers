@@ -1,15 +1,13 @@
 // Simple synth engine to avoid external assets dependency issues
 class AudioEngine {
-  private ctx: AudioContext | null = null;
-  private isEnabled: boolean = false;
-
   constructor() {
-    // Lazy initialization handled in init()
+    this.ctx = null;
+    this.isEnabled = false;
   }
 
   init() {
     if (!this.ctx) {
-      this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
       this.isEnabled = true;
     }
     if (this.ctx.state === 'suspended') {
@@ -17,7 +15,7 @@ class AudioEngine {
     }
   }
 
-  playInstrument(instrument: string, time: number) {
+  playInstrument(instrument, time) {
     if (!this.ctx) return;
 
     const t = time || this.ctx.currentTime;
@@ -38,45 +36,43 @@ class AudioEngine {
     }
   }
 
-  private playBell(time: number) {
+  playBell(time) {
     if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
-    
-    osc.type = 'triangle'; // Metallic sound
-    osc.frequency.setValueAtTime(880, time); // A5
-    osc.frequency.exponentialRampToValueAtTime(100, time + 0.5); // Decay pitch slightly for realism? No, bells are steady.
-    // Actually bells have metallic inharmonicity, let's keep it simple.
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(880, time);
     osc.frequency.setValueAtTime(600, time);
-    
+
     gain.gain.setValueAtTime(0, time);
     gain.gain.linearRampToValueAtTime(0.4, time + 0.01);
     gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
-    
+
     osc.start(time);
     osc.stop(time + 0.3);
   }
 
-  private playShaker(time: number) {
+  playShaker(time) {
     if (!this.ctx) return;
-    const bufferSize = this.ctx.sampleRate * 0.05; // 50ms
+    const bufferSize = this.ctx.sampleRate * 0.05;
     const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
     const data = buffer.getChannelData(0);
-    
+
     for (let i = 0; i < bufferSize; i++) {
       data[i] = Math.random() * 2 - 1;
     }
 
     const noise = this.ctx.createBufferSource();
     noise.buffer = buffer;
-    
+
     const filter = this.ctx.createBiquadFilter();
     filter.type = 'highpass';
     filter.frequency.value = 5000;
-    
+
     const gain = this.ctx.createGain();
     gain.gain.setValueAtTime(0.3, time);
     gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05);
@@ -84,11 +80,11 @@ class AudioEngine {
     noise.connect(filter);
     filter.connect(gain);
     gain.connect(this.ctx.destination);
-    
+
     noise.start(time);
   }
 
-  private playHighDrum(time: number) {
+  playHighDrum(time) {
     if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
@@ -108,7 +104,7 @@ class AudioEngine {
     osc.stop(time + 0.2);
   }
 
-  private playLowDrum(time: number) {
+  playLowDrum(time) {
     if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
